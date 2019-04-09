@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<scenario description="An example"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="lightning-xml-schema.xsd">
+
+  <type name="host" image="ptoribi/lightning:host" enable_ipv6="yes" shared_folder="yes" graphics="xorg" user="same" terminal="xterm">
+
+	  <interface name="eth1" link_local_ipv6="no" />
+
+    <copy> # an artifact can be a file or a directory
+      <artifact source="other/bash_persistent" destination="/bin" /> # source: at the same level as the xml file
+    </copy>
+
+    <start>
+      <command>"bash_persistent"</command>
+    </start>
+
+  </type>
+
+
+  <type name="router" image="ptoribi/lightning:router" enable_ipv6="yes" shared_folder="no" graphics="none" user="root" terminal="xterm">
+
+    <interface name="eth0.0" link_local_ipv6="no">
+      <default_ip>192.168.0.1/24</default_ip>
+    </interface>
+    <interface name="eth0.1" link_local_ipv6="no">
+      <default_ip>192.168.1.1/24</default_ip>
+    </interface>
+    <interface name="eth0.2" link_local_ipv6="no">
+      <default_ip>192.168.2.1/24</default_ip>
+    </interface>
+    <interface name="eth0.3" link_local_ipv6="no">
+      <default_ip>192.168.3.1/24</default_ip>
+    </interface>
+    <interface name="eth0.4" link_local_ipv6="no">
+      <default_ip>192.168.4.1/24</default_ip>
+    </interface>
+    <interface name="wlan0" link_local_ipv6="no">
+      <default_ip>192.168.5.1/24</default_ip>
+    </interface>
+
+    <copy> # an artifact can be a file or a directory
+      <artifact source="other/vtysh_persistent" destination="/bin" /> # source: at the same level as the xml file
+      <artifact source="quagga" destination="/etc" /> # source: at the same level as the xml file
+    </copy>
+
+    <setup>
+	     <command>"chown -R quagga:quagga /etc/quagga"</command>
+       <command>"chown quagga:quaggavty /etc/quagga/vtysh.conf"</command>
+       <command>"/etc/init.d/ssh start"</command>
+       <command>"/etc/init.d/xinetd start"</command>
+       <command>"/etc/init.d/quagga start"</command>
+    </setup>
+
+    <start>
+      <command>"vtysh_persistent"</command>
+    </start>
+
+  </type>
+
+
+ <network name="RedA" type="switch">
+
+    <container name="pc1" hostname="ordenador1" type="host"> <interface name="eth1"> <ip>192.100.100.101/24</ip> </interface> </container>
+
+    <container name="pc2" hostname="ordenador2" type="host"> <interface name="eth1"> <ip>192.100.100.102/24</ip> </interface> </container>
+
+    <container name="r1" hostname="router1" type="router"> <interface name="eth0.0"> <ip>192.100.100.103/24</ip> </interface> </container>
+
+  </network>
+
+</scenario>
